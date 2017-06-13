@@ -44,22 +44,12 @@
            then default lucene sorting will be used which places docs without the field
            first in an ascending sort and last in a descending sort.
         -->
-        <fieldtype name="sint" class="solr.TrieIntField" sortMissingLast="true"/>
-        <fieldtype name="slong" class="solr.TrieLongField" sortMissingLast="true"/>
-        <fieldtype name="sfloat" class="solr.TrieFloatField" sortMissingLast="true"/>
-        <fieldtype name="sdouble" class="solr.TrieDoubleField" sortMissingLast="true"/>
+
+
 
 
         <fieldType name="string" class="solr.StrField"/>
-        <!-- format for date is 1995-12-31T23:59:59.999Z and only the fractional
-         seconds part (.999) is optional.
-      -->
 
-
-        <!-- solr.TextField allows the specification of custom
-             text analyzers specified as a tokenizer and a list
-             of token filters.
-          -->
         <fieldtype name="text" class="solr.TextField">
             <analyzer>
                 <tokenizer class="solr.StandardTokenizerFactory"/>

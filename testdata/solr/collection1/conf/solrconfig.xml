@@ -21,33 +21,22 @@
  discovery-based core configuration. Trying a minimal configuration to cut down the setup time.
  use in conjunction with schema-minimal.xml perhaps? -->
 <config>
-    <luceneMatchVersion>LUCENE_54</luceneMatchVersion>
 
-
+    <luceneMatchVersion>5.3.1</luceneMatchVersion>
     <dataDir>${solr.data.dir:}</dataDir>
-
     <directoryFactory name="DirectoryFactory"
                       class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}"/>
-
     <indexConfig>
     </indexConfig>
-
     <jmx/>
-    <updateHandler class="solr.DirectUpdateHandler2">
-        <!--updateLog>
-          <str name="dir">${solr.ulog.dir:}</str>
-        </updateLog-->
-    </updateHandler>
+    <updateHandler class="solr.DirectUpdateHandler2"/>
 
     <query>
         <enableLazyFieldLoading>true</enableLazyFieldLoading>
         <queryResultWindowSize>20</queryResultWindowSize>
         <queryResultMaxDocsCached>20</queryResultMaxDocsCached>
-
         <useColdSearcher>true</useColdSearcher>
-
         <maxWarmingSearchers>1</maxWarmingSearchers>
-
     </query>
 
     <requestDispatcher handleSelect="false">
@@ -60,22 +49,11 @@
             <str name="indent">true</str>
             <str name="df">text</str>
         </lst>
-
-    </requestHandler>
-    <requestHandler name="/update" class="solr.UpdateRequestHandler">
     </requestHandler>
 
     <queryParser name="cutoff"  class="org.apache.lucene.analysis.tanimoto.tanimotoCutoffPostFilterPlugin" />
     <queryParser name="tanimoto" class="org.apache.lucene.analysis.tanimoto.TanimotoQParserPlugin"  />
     <queryParser name="tversky" class="org.apache.lucene.analysis.tanimoto.TverskyQParserPlugin"  />
-
     <codecFactory class="solr.SchemaCodecFactory"/>
-
-    <queryResponseWriter name="json" class="solr.JSONResponseWriter">
-        <!-- For the purposes of the tutorial, JSON responses are written as
-         plain text so that they are easy to read in *any* browser.
-         If you expect a MIME type of "application/json" just remove this override.
-        -->
-        <str name="content-type">text/plain; charset=UTF-8</str>
-    </queryResponseWriter>
+    <schemaFactory class="ClassicIndexSchemaFactory"/>
 </config>
