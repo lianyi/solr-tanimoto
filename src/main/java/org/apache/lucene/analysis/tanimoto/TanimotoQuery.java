@@ -6,7 +6,9 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.queries.CustomScoreProvider;
 import org.apache.lucene.queries.CustomScoreQuery;
 import org.apache.lucene.queries.function.FunctionQuery;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Weight;
 import org.apache.solr.common.params.SolrParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import java.util.Set;
 public class TanimotoQuery extends CustomScoreQuery {
 
     private final static Logger logger = LoggerFactory.getLogger(TanimotoQuery.class);
+    Set<Term> terms;
     protected int _queryTermsSize;
     protected String _scoreField;
     protected String _md5hash;
@@ -28,19 +31,18 @@ public class TanimotoQuery extends CustomScoreQuery {
 
     public TanimotoQuery(String scoreField, Query subQuery, FunctionQuery scoringQuery) {
         super(subQuery, scoringQuery);
-        _queryTermsSize = this.getTermsSize(subQuery);
         _scoreField = scoreField;
     }
 
     public TanimotoQuery(String scoreField, Query subQuery, FunctionQuery... scoringQueries) {
         super(subQuery, scoringQueries);
-        _queryTermsSize = this.getTermsSize(subQuery);
+
         _scoreField = scoreField;
     }
 
     public TanimotoQuery(SolrParams localParams, Query subQuery, FunctionQuery... scoringQueries) {
         super(subQuery, scoringQueries);
-        _queryTermsSize = this.getTermsSize(subQuery);
+
         _scoreField = localParams.get("bf", "matchstringLength");//score field for size(B)
         _md5hash = localParams.get("hf", "md5");//hash field
 //        System.out.println(_queryTermsSize);
@@ -48,19 +50,24 @@ public class TanimotoQuery extends CustomScoreQuery {
 //        System.out.println(subQuery.toString());
     }
 
-    private int getTermsSize(Query subQuery) {
-        Set<Term> terms = new HashSet<Term>();//ignore duplicates
-        subQuery.extractTerms(terms);
-        return terms.size();
-    }
 
     @Override
-    protected CustomScoreProvider getCustomScoreProvider(AtomicReaderContext context) throws IOException {
+    public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
+        Weight w = super.createWeight(searcher, needsScores);
+        Set<Term> terms = new HashSet<Term>();//ignore duplicates
+        w.extractTerms(terms);
+        _queryTermsSize = terms.size();
+        return w;
+    }
+
+
+    @java.lang.Override
+    protected CustomScoreProvider getCustomScoreProvider(LeafReaderContext context) throws IOException {
         return new MyScoreProvider(context);
     }
 
-    @Override
-    public String name() {
+    @java.lang.Override
+    public java.lang.String name() {
         return "TanimotoQuery";
     }
 
@@ -72,7 +79,7 @@ public class TanimotoQuery extends CustomScoreQuery {
          *
          * @param context
          */
-        public MyScoreProvider(AtomicReaderContext context) {
+        public MyScoreProvider(LeafReaderContext context) {
             super(context);
 
         }
@@ -112,8 +119,7 @@ public class TanimotoQuery extends CustomScoreQuery {
         private float getTermsVectorCount(int doc) throws IOException {
             IndexReader r = context.reader();
             Terms tv = r.getTermVector(doc, _scoreField);
-            TermsEnum termsEnum = null;
-            termsEnum = tv.iterator(termsEnum);
+            TermsEnum termsEnum = tv.iterator();
             int numTerms = 0;
             while ((termsEnum.next()) != null) {
                 numTerms++;

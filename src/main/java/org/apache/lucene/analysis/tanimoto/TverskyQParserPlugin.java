@@ -15,8 +15,6 @@ package org.apache.lucene.analysis.tanimoto;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Created by hanl.
  */
 
 import org.apache.lucene.search.Query;
@@ -47,7 +45,7 @@ import org.apache.solr.search.SyntaxError;
 
 public class TverskyQParserPlugin extends QParserPlugin {
 
-
+    @Override
     public void init(NamedList args) {
         SolrParams params = SolrParams.toSolrParams(args);
         // handle configuration parameters

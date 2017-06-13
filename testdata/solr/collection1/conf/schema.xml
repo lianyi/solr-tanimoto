@@ -44,25 +44,16 @@
            then default lucene sorting will be used which places docs without the field
            first in an ascending sort and last in a descending sort.
         -->
-        <fieldtype name="sint" class="solr.SortableIntField" sortMissingLast="true"/>
-        <fieldtype name="slong" class="solr.SortableLongField" sortMissingLast="true"/>
-        <fieldtype name="sfloat" class="solr.SortableFloatField" sortMissingLast="true"/>
-        <fieldtype name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true"/>
+        <fieldtype name="sint" class="solr.TrieIntField" sortMissingLast="true"/>
+        <fieldtype name="slong" class="solr.TrieLongField" sortMissingLast="true"/>
+        <fieldtype name="sfloat" class="solr.TrieFloatField" sortMissingLast="true"/>
+        <fieldtype name="sdouble" class="solr.TrieDoubleField" sortMissingLast="true"/>
 
-        <!-- bcd versions of sortable numeric type may provide smaller
-             storage space and support very large numbers.
-        -->
-        <fieldtype name="bcdint" class="solr.BCDIntField" sortMissingLast="true"/>
-        <fieldtype name="bcdlong" class="solr.BCDLongField" sortMissingLast="true"/>
-        <fieldtype name="bcdstr" class="solr.BCDStrField" sortMissingLast="true"/>
 
         <fieldType name="string" class="solr.StrField"/>
         <!-- format for date is 1995-12-31T23:59:59.999Z and only the fractional
          seconds part (.999) is optional.
       -->
-        <fieldtype name="date" class="solr.TrieDateField" precisionStep="0"/>
-        <fieldtype name="tdate" class="solr.TrieDateField" precisionStep="6"/>
-        <fieldtype name="pdate" class="solr.DateField" sortMissingLast="true"/>
 
 
         <!-- solr.TextField allows the specification of custom

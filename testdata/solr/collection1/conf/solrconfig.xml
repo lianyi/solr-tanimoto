@@ -21,7 +21,7 @@
  discovery-based core configuration. Trying a minimal configuration to cut down the setup time.
  use in conjunction with schema-minimal.xml perhaps? -->
 <config>
-    <luceneMatchVersion>LUCENE_41</luceneMatchVersion>
+    <luceneMatchVersion>LUCENE_54</luceneMatchVersion>
 
 
     <dataDir>${solr.data.dir:}</dataDir>
@@ -49,8 +49,6 @@
         <maxWarmingSearchers>1</maxWarmingSearchers>
 
     </query>
-
-    <requestHandler name="/admin/" class="solr.admin.AdminHandlers" />
 
     <requestDispatcher handleSelect="false">
         <httpCaching never304="true"/>

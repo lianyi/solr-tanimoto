@@ -15,10 +15,19 @@ package org.apache.lucene.analysis.tanimoto;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Created by hanl.
- *
- *
+ */
+import org.apache.lucene.search.Query;
+import org.apache.solr.common.params.ModifiableSolrParams;
+import org.apache.solr.common.params.SolrParams;
+import org.apache.solr.common.util.NamedList;
+import org.apache.solr.request.SolrQueryRequest;
+import org.apache.solr.search.QParser;
+import org.apache.solr.search.QParserPlugin;
+import org.apache.solr.search.SyntaxError;
+
+import java.util.Iterator;
+
+/**
  * Implementation of Tanimoto Query Plugin
  *
  * <p>Usage:</p>
@@ -36,20 +45,10 @@ package org.apache.lucene.analysis.tanimoto;
  * </p>
  */
 
-import org.apache.lucene.search.Query;
-import org.apache.solr.common.params.ModifiableSolrParams;
-import org.apache.solr.common.params.SolrParams;
-import org.apache.solr.common.util.NamedList;
-import org.apache.solr.request.SolrQueryRequest;
-import org.apache.solr.search.QParser;
-import org.apache.solr.search.QParserPlugin;
-import org.apache.solr.search.SyntaxError;
-
-import java.util.Iterator;
-
 
 public class TanimotoQParserPlugin extends QParserPlugin {
 
+    @Override
     public void init(NamedList args) {
         SolrParams params = SolrParams.toSolrParams(args);
         // handle configuration parameters

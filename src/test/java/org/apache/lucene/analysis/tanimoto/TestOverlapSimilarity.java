@@ -10,10 +10,7 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.RandomIndexWriter;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.store.Directory;
@@ -36,7 +33,7 @@ public class TestOverlapSimilarity extends LuceneTestCase {
     Field newFieldAllOn(String name, String value) {
         FieldType tagsFieldType = new FieldType();
         tagsFieldType.setStored(true);
-        tagsFieldType.setIndexed(true);
+        tagsFieldType.setIndexOptions(IndexOptions.DOCS);
         tagsFieldType.setOmitNorms(true);
         tagsFieldType.setStoreTermVectors(true);
         tagsFieldType.setStoreTermVectorPositions(true);
@@ -54,9 +51,7 @@ public class TestOverlapSimilarity extends LuceneTestCase {
         dirUnderTest = newDirectory();
         similarity = new OverlapSimilarity();
 
-        IndexWriterConfig iwConf = new IndexWriterConfig(
-                Version.LUCENE_44, new WhitespaceAnalyzer(
-                Version.LUCENE_44));
+        IndexWriterConfig iwConf = new IndexWriterConfig(new WhitespaceAnalyzer());
         iwConf.setSimilarity(similarity);
         indexWriterUnderTest = new RandomIndexWriter(random(), dirUnderTest, iwConf);
 
@@ -91,8 +86,8 @@ public class TestOverlapSimilarity extends LuceneTestCase {
     public void testOverlapScoring() throws IOException {
 
 
-        BooleanQuery q = new BooleanQuery();
 
+        BooleanQuery.Builder q = new BooleanQuery.Builder();
         q.add(newTermQuery("tag", "1"), BooleanClause.Occur.SHOULD);
         q.add(newTermQuery("tag", "2"), BooleanClause.Occur.SHOULD);
         q.add(newTermQuery("tag", "10"), BooleanClause.Occur.SHOULD);
@@ -103,7 +98,7 @@ public class TestOverlapSimilarity extends LuceneTestCase {
         q.setMinimumNumberShouldMatch(1);
 
 
-        TopDocs topDocs = searcherUnderTest.search(q, 10);
+        TopDocs topDocs = searcherUnderTest.search(q.build(), 10);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         assert (topDocs.totalHits == 3);
         assert (scoreDocs[0].score == 5.0);

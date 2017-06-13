@@ -1,25 +1,14 @@
 package org.apache.lucene.analysis.tanimoto;
+
+/**
+ * Created by hanl.
+ */
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Created by hanl
+ *  Similarity: http://www.daylight.com/dayhtml/doc/theory/theory.finger.html
  */
 
-import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.FieldInvertState;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.util.BytesRef;
 
@@ -65,7 +54,7 @@ public class OverlapSimilarity extends TFIDFSimilarity {
         //System.out.println("overlap:" + overlap);
         //System.out.println("maxOverlap:" + maxOverlap);
         //http: // www.daylight.com/dayhtml/doc/theory/theory.finger.html
-        return 1.0f;// (1.0f / Math.sqrt(maxOverlap)); // is actually calc
+        return (float) 1.0f;// (1.0f / Math.sqrt(maxOverlap)); // is actually calc
         // 1.0f*overlap
         // /maxOverlap
     }
@@ -142,7 +131,7 @@ public class OverlapSimilarity extends TFIDFSimilarity {
     }
 
     public final OverlapSimScorer simScorer(SimWeight stats,
-                                            AtomicReaderContext context) throws IOException {
+                                            LeafReaderContext context) throws IOException {
         IDFStats idfstats = (IDFStats) stats;
         return new OverlapSimScorer(idfstats, context.reader().getNormValues(
                 idfstats.field));
@@ -171,7 +160,26 @@ public class OverlapSimilarity extends TFIDFSimilarity {
 
         @Override
         public float score(int doc, float freq) {
+            // final float raw = tf(freq) * weightValue; // compute tf(f)*weight
+
+            // return norms == null ? raw : raw *
+            // decodeNormValue(norms.get(doc)); // normalize for field
+
+			/*
+             * float raw = tf(freq)*weightValue; // compute tf(f)*weight
+			 * System.out.println( "stats.queryNorm="+stats.queryNorm);
+			 * System.out.println( "doc="+doc+" raw = tf(freq)*weightValue " +
+			 * raw); System.out.println( "freq  " + freq); System.out.println(
+			 * "weightValue  " + weightValue); System.out.println( "tf(freq)" +
+			 * tf(freq)); System.out.println(
+			 * "decodeNormValue((byte)norms.get(doc))" +
+			 * decodeNormValue((byte)norms.get(doc)));
+			 */
+
+            // return (float) (1.0f / Math.sqrt(decodeNormValue((byte)
+            // norms.get(doc)))); // || decodeNormValue((byte)norms.get(doc));
             return 1;//(float) (decodeNormValue((byte) norms.get(doc)));
+            // return norms == null ? raw : raw /
         }
 
     }

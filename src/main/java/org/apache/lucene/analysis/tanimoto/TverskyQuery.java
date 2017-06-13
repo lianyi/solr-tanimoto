@@ -2,12 +2,14 @@ package org.apache.lucene.analysis.tanimoto;
 
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.CustomScoreProvider;
 import org.apache.lucene.queries.CustomScoreQuery;
 import org.apache.lucene.queries.function.FunctionQuery;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Weight;
 import org.apache.solr.common.params.SolrParams;
 
 import java.io.IOException;
@@ -29,7 +31,6 @@ public class TverskyQuery extends CustomScoreQuery {
 
     public TverskyQuery(String scoreField, float alpha, float beta, Query subQuery, FunctionQuery scoringQuery) {
         super(subQuery, scoringQuery);
-        _queryTermsSize = this.getTermsSize(subQuery);
         _scoreField = scoreField;
         _alpha = alpha;
         _beta = beta;
@@ -37,7 +38,6 @@ public class TverskyQuery extends CustomScoreQuery {
 
     public TverskyQuery(String scoreField, float alpha, float beta, Query subQuery, FunctionQuery... scoringQueries) {
         super(subQuery, scoringQueries);
-        _queryTermsSize = this.getTermsSize(subQuery);
         _scoreField = scoreField;
         _alpha = alpha;
         _beta = beta;
@@ -45,21 +45,24 @@ public class TverskyQuery extends CustomScoreQuery {
 
     public TverskyQuery(SolrParams localParams, Query subQuery, FunctionQuery... scoringQueries) {
         super(subQuery, scoringQueries);
-        _queryTermsSize = this.getTermsSize(subQuery);
         _scoreField = localParams.get("bf", "matchstringLength");//score field for size(B)
         _alpha = localParams.getFloat("alpha", 1.0f);//alpha field
         _beta = localParams.getFloat("beta", 1.0f);//beta field
     }
 
-    private int getTermsSize(Query subQuery) {
-        Set<Term> terms = new HashSet<Term>();//ignore duplicates
-        subQuery.extractTerms(terms);
-        return terms.size();
+
+    @Override
+    protected CustomScoreProvider getCustomScoreProvider(LeafReaderContext context) throws IOException {
+        return new MyScoreProvider(context);
     }
 
     @Override
-    protected CustomScoreProvider getCustomScoreProvider(AtomicReaderContext context) throws IOException {
-        return new MyScoreProvider(context);
+    public Weight createWeight(IndexSearcher searcher, boolean needsScores) throws IOException {
+        Weight w = super.createWeight(searcher, needsScores);
+        Set<Term> terms = new HashSet<Term>();//ignore duplicates
+        w.extractTerms(terms);
+        _queryTermsSize = terms.size();
+        return w;
     }
 
     @Override
@@ -75,7 +78,7 @@ public class TverskyQuery extends CustomScoreQuery {
          *
          * @param context - context
          */
-        public MyScoreProvider(AtomicReaderContext context) {
+        public MyScoreProvider(LeafReaderContext context) {
             super(context);
 
         }
